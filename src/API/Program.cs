@@ -44,13 +44,22 @@ public class Program
         }
 
         app.UseAuthenticationAndAuthorization();
-        app.MapReverseProxy();
+
+        app.MapWhen(context => context.Request.Path.StartsWithSegments("/api"), apiApp =>
+        {
+            apiApp.UseRouting();
+            apiApp.UseEndpoints(endpoints => endpoints.MapReverseProxy());
+        });
+
 
         if (app.Environment.IsDevelopment())
         {
-            app.UseSpa(spa =>
+            app.MapWhen(context => !context.Request.Path.StartsWithSegments("/api"), spaApp =>
             {
-                spa.UseProxyToSpaDevelopmentServer("http://angular-ui:4200");
+                spaApp.UseSpa(spa =>
+                {
+                    spa.UseProxyToSpaDevelopmentServer("http://angular-ui:4200");
+                });
             });
         }
 
