@@ -1,7 +1,5 @@
 using API.Middlewares;
-using API.Middlewares.Auth;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
+using API.Common.Middlewares;
 
 namespace API;
 
@@ -15,53 +13,28 @@ public class Program
         string JWT_AUDIENCE = builder.Configuration.GetValue<string>(nameof(JWT_AUDIENCE))!;
         string JWT_KEY = builder.Configuration.GetValue<string>(nameof(JWT_KEY))!;
 
-        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(opts =>
-            {
-                opts.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = JWT_ISSUER,
-                    ValidAudience = JWT_AUDIENCE,
-                    IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(JWT_KEY))
-                };
-            });
-
-        builder.Services.AddAuthorization();
-
+        builder.Services.AddAuthConfiguration(JWT_ISSUER, JWT_AUDIENCE, JWT_KEY);
         builder.Services.AddReverseProxyConfiguration();
-
-        builder.Services.AddOpenApi();
 
         WebApplication app = builder.Build();
 
         if (app.Environment.IsDevelopment())
         {
-            app.MapOpenApi();
-        }
-
-        app.UseAuthenticationAndAuthorization();
-
-        app.MapWhen(context => context.Request.Path.StartsWithSegments("/api"), apiApp =>
-        {
-            apiApp.UseRouting();
-            apiApp.UseEndpoints(endpoints => endpoints.MapReverseProxy());
-        });
-
-
-        if (app.Environment.IsDevelopment())
-        {
-            app.MapWhen(context => !context.Request.Path.StartsWithSegments("/api"), spaApp =>
-            {
-                spaApp.UseSpa(spa =>
+            app.MapWhen(context =>
+                !context.Request.Path.StartsWithSegments("/api"),
+                spaApp =>
                 {
-                    spa.UseProxyToSpaDevelopmentServer("http://angular-ui:4200");
-                });
-            });
+                    spaApp.UseSpa(spa =>
+                    {
+                        spa.UseProxyToSpaDevelopmentServer("http://angular-ui:4200");
+                    });
+                }
+            );
         }
+
+        app.UseRouting();
+        app.UseAuth();
+        app.MapReverseProxy();
 
         app.Run();
     }
