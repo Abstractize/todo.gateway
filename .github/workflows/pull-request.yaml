@@ -46,6 +46,6 @@ jobs:
           secrets: |
             GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           tags: test-image:pr-${{ github.event.pull_request.number }}
-
+          
       - name: Run container test
-        run: docker run --rm test-image:pr-${{ github.event.pull_request.number }} sleep 5
+        run: docker run --rm --entrypoint sleep test-image:pr-${{ github.event.pull_request.number }} 5
