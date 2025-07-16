@@ -2,7 +2,6 @@ name: Build and Release
 
 on:
   pull_request:
-  #push:
     branches:
       - main
 
@@ -38,7 +37,7 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
@@ -73,7 +72,7 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get install -y yq
           VERSION="0.1.${GITHUB_RUN_NUMBER}"
-          yq eval -i -y '.appVersion = "'"${GITHUB_SHA}"'" | .version = "'"${VERSION}"'"' .helm/Chart.yaml
+          yq -i ".appVersion = \"${GITHUB_SHA}\" | .version = \"$VERSION\"" .helm/Chart.yaml
 
       - name: Lint Helm chart
         run: helm lint .helm
