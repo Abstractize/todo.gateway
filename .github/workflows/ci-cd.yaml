@@ -72,7 +72,7 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get install -y yq
           VERSION="0.1.${GITHUB_RUN_NUMBER}"
-          yq -i ".appVersion = \"${GITHUB_SHA}\" | .version = \"$VERSION\"" .helm/Chart.yaml
+            yq -y -i ".appVersion = \"${GITHUB_SHA}\" | .version = \"$VERSION\"" .helm/Chart.yaml
 
       - name: Lint Helm chart
         run: helm lint .helm
