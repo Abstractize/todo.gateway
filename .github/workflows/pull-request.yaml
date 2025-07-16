@@ -22,8 +22,8 @@ jobs:
 
   docker-build-test:
     permissions:
-      packages: read
       contents: read
+      packages: write
 
     runs-on: ubuntu-latest
     needs: helm-lint
