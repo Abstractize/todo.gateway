@@ -13,23 +13,22 @@ COPY src .
 
 WORKDIR /src/API
 
-RUN --mount=type=secret,id=GITHUB_TOKEN \
-    GITHUB_TOKEN=$(cat /run/secrets/GITHUB_TOKEN) && \
-    cat <<EOF > /src/API/nuget.config
-    <?xml version="1.0" encoding="utf-8"?>
-    <configuration>
-    <packageSources>
-        <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
-        <add key="github" value="https://nuget.pkg.github.com/${GITHUB_USERNAME}/index.json" />
-    </packageSources>
-    <packageSourceCredentials>
-        <github>
-        <add key="Username" value="${GITHUB_USERNAME}" />
-        <add key="ClearTextPassword" value="${GITHUB_TOKEN}" />
-        </github>
-    </packageSourceCredentials>
-    </configuration>
-    EOF
+RUN --mount=type=secret,id=GITHUB_TOKEN bash -c '\
+    TOKEN=$(cat /run/secrets/GITHUB_TOKEN) && \
+    echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>" > nuget.config && \
+    echo "<configuration>" >> nuget.config && \
+    echo "  <packageSources>" >> nuget.config && \
+    echo "    <add key=\"nuget.org\" value=\"https://api.nuget.org/v3/index.json\" />" >> nuget.config && \
+    echo "    <add key=\"github\" value=\"https://nuget.pkg.github.com/'$GITHUB_USERNAME'/index.json\" />" >> nuget.config && \
+    echo "  </packageSources>" >> nuget.config && \
+    echo "  <packageSourceCredentials>" >> nuget.config && \
+    echo "    <github>" >> nuget.config && \
+    echo "      <add key=\"Username\" value=\"'$GITHUB_USERNAME'\" />" >> nuget.config && \
+    echo "      <add key=\"ClearTextPassword\" value=\"'$TOKEN'\" />" >> nuget.config && \
+    echo "    </github>" >> nuget.config && \
+    echo "  </packageSourceCredentials>" >> nuget.config && \
+    echo "</configuration>" >> nuget.config \
+    '
 
 RUN dotnet restore --configfile /src/API/nuget.config
 RUN dotnet publish -c Release -o /app/publish
