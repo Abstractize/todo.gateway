@@ -36,10 +36,11 @@ jobs:
           context: .
           file: Dockerfile
           push: false
-          tags: test-image:pr-${{ github.event.pull_request.number }}
           build-args: |
             GITHUB_USERNAME=${{ github.actor }}
+          secrets: |
             GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
+          tags: test-image:pr-${{ github.event.pull_request.number }}
 
       - name: Run container test
         run: |
