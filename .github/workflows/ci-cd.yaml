@@ -22,6 +22,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set lowercase env vars for username and repo
+        run: |
+          echo "USERNAME=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+          REPO_NAME=$(echo "${{ github.repository }}" | cut -d/ -f2)
+          echo "REPO_NAME_LOWER=$(echo $REPO_NAME | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -43,8 +49,8 @@ jobs:
           secrets: |
             GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           tags: |
-            ${{ env.REGISTRY }}/${{ github.repository }}:latest
-            ${{ env.REGISTRY }}/${{ github.repository }}:${{ github.sha }}
+            ${{ env.REGISTRY }}/$USERNAME/$REPO_NAME_LOWER:latest
+            ${{ env.REGISTRY }}/$USERNAME/$REPO_NAME_LOWER:${{ github.sha }}
 
   helm-release:
     runs-on: ubuntu-latest
