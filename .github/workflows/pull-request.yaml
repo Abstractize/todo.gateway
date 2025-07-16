@@ -37,6 +37,9 @@ jobs:
           file: Dockerfile
           push: false
           tags: test-image:pr-${{ github.event.pull_request.number }}
+          build-args: |
+            GITHUB_USERNAME=${{ github.actor }}
+            GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
 
       - name: Run container test
         run: |
