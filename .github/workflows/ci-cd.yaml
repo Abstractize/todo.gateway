@@ -37,7 +37,6 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
@@ -49,8 +48,8 @@ jobs:
           secrets: |
             GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           tags: |
-            ${{ env.REGISTRY }}/$USERNAME/$REPO_NAME_LOWER:latest
-            ${{ env.REGISTRY }}/$USERNAME/$REPO_NAME_LOWER:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.REPO_NAME_LOWER }}:latest
+            ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.REPO_NAME_LOWER }}:${{ github.sha }}
 
   helm-release:
     runs-on: ubuntu-latest
