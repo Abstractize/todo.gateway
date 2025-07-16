@@ -13,8 +13,7 @@ COPY src .
 
 WORKDIR /src/API
 
-RUN --mount=type=secret,id=GITHUB_TOKEN bash -c '\
-    TOKEN=$(cat /run/secrets/GITHUB_TOKEN) && \
+RUN --mount=type=secret,id=GITHUB_TOKEN,env=GITHUB_TOKEN bash -c '\
     echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>" > nuget.config && \
     echo "<configuration>" >> nuget.config && \
     echo "  <packageSources>" >> nuget.config && \
@@ -24,7 +23,7 @@ RUN --mount=type=secret,id=GITHUB_TOKEN bash -c '\
     echo "  <packageSourceCredentials>" >> nuget.config && \
     echo "    <github>" >> nuget.config && \
     echo "      <add key=\"Username\" value=\"'$GITHUB_USERNAME'\" />" >> nuget.config && \
-    echo "      <add key=\"ClearTextPassword\" value=\"'$TOKEN'\" />" >> nuget.config && \
+    echo "      <add key=\"ClearTextPassword\" value=\"$GITHUB_TOKEN\" />" >> nuget.config && \
     echo "    </github>" >> nuget.config && \
     echo "  </packageSourceCredentials>" >> nuget.config && \
     echo "</configuration>" >> nuget.config \
