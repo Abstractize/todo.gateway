@@ -1,0 +1,22 @@
+apiVersion: v2
+name: gateway
+description: Gateway service for the TODO application, serving as a reverse proxy and routing layer.
+
+type: application
+
+version: 0.1.0
+
+appVersion: "0.1.0"
+
+keywords:
+  - gateway
+  - reverse-proxy
+  - ingress
+  - todo
+
+maintainers:
+  - name: Gabriel Abarca
+    url: https://github.com/Abstractize
+
+sources:
+  - https://github.com/Abstractize/todo.gateway
