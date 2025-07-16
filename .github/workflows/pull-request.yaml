@@ -41,7 +41,7 @@ jobs:
           file: Dockerfile
           push: false
           build-args: |
-            GITHUB_USERNAME=${{ github.actor }}
+            GITHUB_USERNAME=${{ github.repository_owner }}
           secrets: |
             GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           tags: test-image:pr-${{ github.event.pull_request.number }}
