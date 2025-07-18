@@ -8,12 +8,16 @@ public static class IServiceCollectionEx
     public static IReverseProxyBuilder AddReverseProxyRouting(this IServiceCollection services)
     {
         RouteConfig[] routes = [
+            .. Analytics.AnalyticsRouteConfig.GetRoutes(),
             .. Auth.AuthRouteConfig.GetRoutes(),
+            .. Recomendations.RecommendationsRouteConfig.GetRoutes(),
             .. Tasks.TaskRouteConfig.GetRoutes()
         ];
 
         ClusterConfig[] clusters = [
+            .. Analytics.RecommendationsClusterConfig.GetClusters(),
             .. Auth.AuthClusterConfig.GetClusters(),
+            .. Recomendations.RecommendationsClusterConfig.GetClusters(),
             .. Tasks.TaskClusterConfig.GetClusters()
         ];
 
