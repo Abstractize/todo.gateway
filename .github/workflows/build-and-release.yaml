@@ -1,7 +1,6 @@
 name: Build and Release Gateway Chart
 
 on:
-  #push:
   pull_request:
     branches:
       - main
@@ -11,8 +10,7 @@ env:
   IMAGE_NAME: gateway
   REGISTRY: ghcr.io
   CHART_NAME: gateway
-  CHART_REPO_OWNER: Abstractize
-  CHART_REPO_NAME: todo.charts
+  OCI_REPO: ghcr.io/${{ github.repository_owner }}/helm-charts
 
 jobs:
   docker-build:
@@ -61,24 +59,17 @@ jobs:
     runs-on: ubuntu-latest
     needs: docker-build
     permissions:
-      contents: write
+      contents: read
       packages: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Set up Helm
         uses: azure/setup-helm@v4
         with:
           version: v3.14.0
-
-      - name: Configure Git
-        run: |
-          git config user.name "$GITHUB_ACTOR"
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
       - name: Update Chart.yaml version and appVersion
         run: |
@@ -86,21 +77,14 @@ jobs:
           VERSION="0.1.${GITHUB_RUN_NUMBER}"
           yq -y -i ".appVersion = \"${GITHUB_SHA}\" | .version = \"$VERSION\"" .helm/Chart.yaml
 
-      - name: Show updated Chart.yaml
-        run: cat .helm/Chart.yaml
-
       - name: Lint Helm chart
         run: helm lint .helm
 
       - name: Package Helm chart
-        run: helm package .helm --destination .cr-release-packages
+        run: helm package .helm --destination .helm-dist
 
-      - name: Run chart-releaser
-        uses: helm/chart-releaser-action@v1.7.0
-        continue-on-error: true
-        env:
-          CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          skip_packaging: true
-          skip_existing: false
-          packages_with_index: true
+      - name: Push Helm chart to GHCR (OCI)
+        run: |
+          helm registry login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+          CHART_FILE=$(ls .helm-dist/*.tgz)
+          helm push $CHART_FILE oci://${{ env.OCI_REPO }}
