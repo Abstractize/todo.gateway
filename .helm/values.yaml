@@ -1,7 +1,7 @@
-replicaCount: 2
+replicaCount: 1
 
 image:
-  repository: abstractize/todo.gateway
+  repository: ghcr.io/abstractize/todo.gateway
   tag: latest
   pullPolicy: IfNotPresent
 
@@ -9,11 +9,19 @@ service:
   type: ClusterIP
   port: 8080
 
-containerPort: 8080
+resources: {}
 
-autoscaling:
-  enabled: false
+hpa:
+  enabled: true
   minReplicas: 1
-  maxReplicas: 5
+  maxReplicas: 3
   targetCPUUtilizationPercentage: 80
-  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+configMapName: infra-config
+secretName: infra-secrets
