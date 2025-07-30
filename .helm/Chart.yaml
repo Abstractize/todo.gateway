@@ -4,4 +4,4 @@ description: Helm chart for the API Gateway service
 type: application
 version: 0.1.0
 appVersion: "latest"
-icon: https://raw.githubusercontent.com/Abstractize/todo.gateway/main/.helm/icon/gateway.svg
+icon: https://raw.githubusercontent.com/Abstractize/todo.gateway/main/.helm/icons/gateway.svg
