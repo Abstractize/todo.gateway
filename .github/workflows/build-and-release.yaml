@@ -9,8 +9,7 @@ on:
 env:
   IMAGE_NAME: gateway
   REGISTRY: ghcr.io
-  CHART_NAME: gateway
-  OCI_REPO: ghcr.io/abstractize/helm-charts
+  OCI_REPO: ghcr.io/abstractize
 
 jobs:
   docker-build:
@@ -52,8 +51,8 @@ jobs:
           secrets: |
             GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           tags: |
-            ${{ env.REGISTRY }}/${{ steps.set_env.outputs.USERNAME }}/${{ steps.set_env.outputs.REPO_NAME }}:latest
-            ${{ env.REGISTRY }}/${{ steps.set_env.outputs.USERNAME }}/${{ steps.set_env.outputs.REPO_NAME }}:${{ github.sha }}
+            ${{ env.OCI_REPO }}/docker-images/todo/${{ env.IMAGE_NAME }}:latest
+            ${{ env.OCI_REPO }}/docker-images/todo/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
   helm-release:
     runs-on: ubuntu-latest
@@ -85,6 +84,6 @@ jobs:
 
       - name: Push Helm chart to GHCR (OCI)
         run: |
-          helm registry login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+          echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io --username ${{ github.actor }} --password-stdin
           CHART_FILE=$(ls .helm-dist/*.tgz)
-          helm push $CHART_FILE oci://${{ env.OCI_REPO }}/${{ env.CHART_NAME }}
+          helm push $CHART_FILE oci://${{ env.OCI_REPO }}/helm-charts/todo
