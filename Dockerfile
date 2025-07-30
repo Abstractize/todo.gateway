@@ -19,11 +19,8 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG GITHUB_USERNAME
 WORKDIR /src
 
-# Copy csproj for restore
-COPY src/*/*.csproj ./
-RUN mkdir -p ./API && mv *.csproj ./API/
+COPY src .
 
-# Configure nuget (GitHub token via secret)
 WORKDIR /src/API
 RUN --mount=type=secret,id=GITHUB_TOKEN bash -c '\
     TOKEN=$(cat /run/secrets/GITHUB_TOKEN) && \
@@ -42,11 +39,8 @@ RUN --mount=type=secret,id=GITHUB_TOKEN bash -c '\
     echo "</configuration>" >> nuget.config \
     '
 
-RUN dotnet restore --configfile nuget.config
-
-# Copy full source & publish
-COPY src .
-RUN dotnet publish -c Release -o /app/publish --no-restore
+RUN dotnet restore --configfile /src/API/nuget.config
+RUN dotnet publish -c Release -o /app/publish
 
 # Stage 3: Final runtime image
 FROM base AS final
