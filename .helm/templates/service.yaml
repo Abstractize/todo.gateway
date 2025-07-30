@@ -3,13 +3,13 @@ kind: Service
 metadata:
   name: {{ include "gateway.fullname" . }}
   labels:
-    {{- include "gateway.labels" . | nindent 4 }}
+    app: {{ include "gateway.name" . }}
 spec:
   type: {{ .Values.service.type }}
+  selector:
+    app: {{ include "gateway.name" . }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: http
+      targetPort: {{ .Values.service.port }}
       protocol: TCP
       name: http
-  selector:
-    {{- include "gateway.selectorLabels" . | nindent 4 }}
