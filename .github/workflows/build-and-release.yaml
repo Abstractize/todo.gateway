@@ -47,7 +47,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          file: .Dockerfile
+          file: ./Dockerfile
           push: true
           build-args: |
             GITHUB_USERNAME=${{ github.repository_owner }}
